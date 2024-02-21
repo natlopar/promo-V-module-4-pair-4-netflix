@@ -18,7 +18,7 @@ async function getConnection() {
   const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root', 
-    password: 'mafalda884??', 
+    password: 'adalab2024', 
     database: 'netflix'
   });
   connection.connect();
@@ -28,10 +28,13 @@ async function getConnection() {
 //endpoints
 
 server.get('/api/movies', async (req,res) => {
+  console.log(req.query.genre)
+  const genreFilterParam = req.query.genre;
   const conex= await getConnection();
-  const sql = 'SELECT * FROM movies';
-  const [results, fields] = await conex.query(sql);
+  const sql = 'SELECT * FROM movies WHERE genre = ?';
+  const [results, fields] = await conex.query(sql, [genreFilterParam]);
   console.log(results);
   console.log(fields);
   res.json({success: true, movies: results});
+  console.log(res);
 })

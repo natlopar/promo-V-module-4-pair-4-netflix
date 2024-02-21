@@ -38,6 +38,7 @@ const App = () => {
       genre: allMoviesOptionGenre,
       sort: allMoviesOptionSort
     };
+    
     apiMovies.getMoviesFromApi(params).then(response => {
       setAppMovies(response.movies);
     });
