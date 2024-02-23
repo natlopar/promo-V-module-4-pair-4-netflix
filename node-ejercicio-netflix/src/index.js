@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require ('mysql2/promise');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
 
 // create and config server
 const server = express();
@@ -17,9 +20,9 @@ server.listen(serverPort, () => {
 //conexion BD
 async function getConnection() {
   const connection = await mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root', 
-    password: 'root24', 
+    password: 'adalab2024', 
     database: 'netflix'
   });
   connection.connect();
@@ -47,6 +50,24 @@ server.get('/api/movies', async (req,res) => {
   res.json({success: true, movies: results});
 });
 
+
+server.post('/sign-up', async (req, res) => { 
+  const {email, password} = req.body;
+  const conex= await getConnection();
+  const selectUser = 'SELECT * FROM users WHERE email = ?';
+  const [resultSelect] = await conex.query(selectUser, [email]);
+
+  if (resultSelect.length === 0) {
+    const passwordHashed = await bcrypt.hash(password, 10);
+    const insertUser = "insert into users (email, password) values (?, ?)";
+    const [resultInsert] = await conex.query(insertUser, [
+      email, passwordHashed
+    ]);
+    res.json({ success: true, data: resultInsert})
+  }
+  
+    
+  });
 
 
 
