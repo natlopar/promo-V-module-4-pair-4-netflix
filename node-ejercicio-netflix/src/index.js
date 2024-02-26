@@ -20,9 +20,9 @@ server.listen(serverPort, () => {
 //conexion BD
 async function getConnection() {
   const connection = await mysql.createConnection({
-    host: '127.0.0.1',
+    host: 'localhost',
     user: 'root', 
-    password: 'adalab2024', 
+    password: 'root24', 
     database: 'netflix'
   });
   connection.connect();
@@ -61,13 +61,27 @@ server.post('/sign-up', async (req, res) => {
     const passwordHashed = await bcrypt.hash(password, 10);
     const insertUser = "insert into users (email, password) values (?, ?)";
     const [resultInsert] = await conex.query(insertUser, [
-      email, passwordHashed
+      email, passwordHashed,
     ]);
-    res.json({ success: true, data: resultInsert})
+    res.json({ success: true, idUser: resultInsert.insertId})
+    console.log(resultInsert.insertId);
+  } else {
+    res.json({success: false, msg: 'email ya registrado'})
   }
+});
+
+//.........endpoint login............
+server.post('/log-in', async (req, res) => {
   
-    
-  });
+})
+
+
+
+
+
+
+
+
 
 
 
