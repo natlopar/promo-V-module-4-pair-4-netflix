@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 // components
 import Header from './Header';
@@ -11,10 +11,11 @@ import SignUp from './SignUp';
 import apiMovies from '../services/api-movies';
 import apiUser from '../services/api-user';
 import router from '../services/router';
+import local from '../services/local-storage';
 
 const App = () => {
   // state: user
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState(local.get("id", ""));
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
@@ -71,6 +72,10 @@ const App = () => {
       });
     }
   }, [userId]);
+
+  useEffect(() => {
+    local.set("id", userId)
+  })
 
   /*
   Event: enviar datos del login al API.

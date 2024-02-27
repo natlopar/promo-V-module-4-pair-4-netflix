@@ -20,13 +20,41 @@ server.listen(serverPort, () => {
 //conexion BD
 async function getConnection() {
   const connection = await mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root', 
-    password: 'root24', 
+    password: 'adalab2024', 
     database: 'netflix'
   });
   connection.connect();
   return connection;
+};
+
+const generateToken = (data) => {
+  const token = jwt.sign(data, 'secret_key_me_lo_invento', { expiresIn: '1h' });
+  return token;
+};
+
+const verifyToken = (token) => {
+  try {
+    const verifyT = jwt.verify(token, 'secret_key_me_lo_invento');
+    return verifyT;
+  } catch (error) {
+    return null;
+  }
+};
+const authenticate = (req, res, next) => {
+  const tokenBearer = req.headers['authorization'];
+  //console.log(tokenBearer);
+  if (!tokenBearer) {
+    return res.status(401).json({ error: 'No hay token' });
+  }
+  const token = tokenBearer.split(' ')[1];
+  const validateToken = verifyToken(token);
+  if (!validateToken) {
+    return res.status(401).json({ error: 'Token incorrecto' });
+  }
+  req.user = validateToken;
+  next();
 };
 
 //endpoints
@@ -72,7 +100,25 @@ server.post('/sign-up', async (req, res) => {
 
 //.........endpoint login............
 server.post('/log-in', async (req, res) => {
-  
+  console.log(req.body)
+  const {email, password} = req.body;
+  const sql = "select * from users where email = ?"
+  const conex = await getConnection();
+
+  const [resultSelect] = await conex.query(sql, [email]); 
+  if (resultSelect.length !== 0) {
+    const checkPass = await bcrypt.compare(password, resultSelect[0].PASSWORD)
+    console.log(checkPass);
+    if(checkPass) {
+      const infoToken = {id: resultSelect[0].idUser, email: resultSelect[0].email}
+      const token = generateToken(infoToken);
+      res.json({success: true, token: token})
+    } else {
+      res.json({success: false, msg: "contraseña incorrecta"})
+    }
+  } else {
+    res.json({success: false, msg: "El correo no existe"})
+  }
 })
 
 
