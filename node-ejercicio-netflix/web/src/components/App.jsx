@@ -15,7 +15,7 @@ import local from '../services/local-storage';
 
 const App = () => {
   // state: user
-  const [userId, setUserId] = useState(local.get("id", ""));
+  const [userId, setUserId] = useState(local.get('id',''));
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
@@ -73,9 +73,6 @@ const App = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    local.set("id", userId)
-  })
 
   /*
   Event: enviar datos del login al API.
@@ -88,7 +85,8 @@ const App = () => {
     // Enviamos los datos al API
     apiUser.sendLoginToApi(loginData).then(response => {
       if (response.success === true) {
-        setUserId(response.userId);
+        setUserId(response.idUser);
+         local.set("id", response.idUser);
         // Si la usuaria introduce bien sus datos redireccionamos desde la página de login al inicio de la página
         router.redirect('/');
       } else {
@@ -109,7 +107,9 @@ const App = () => {
     // Enviamos los datos al API
     apiUser.sendSingUpToApi(data).then(response => {
       if (response.success === true) {
-        setUserId(response.userId);
+        setUserId(response.idUser);
+        local.set("id", response.idUser);
+
         // Si la usuaria introduce bien sus datos redireccionamos desde la página de signup al inicio de la página
         router.redirect('/');
       } else {

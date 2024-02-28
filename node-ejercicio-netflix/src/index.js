@@ -20,9 +20,9 @@ server.listen(serverPort, () => {
 //conexion BD
 async function getConnection() {
   const connection = await mysql.createConnection({
-    host: '127.0.0.1',
+    host: 'localhost',
     user: 'root', 
-    password: 'adalab2024', 
+    password: 'root24', 
     database: 'netflix'
   });
   connection.connect();
@@ -106,13 +106,15 @@ server.post('/log-in', async (req, res) => {
   const conex = await getConnection();
 
   const [resultSelect] = await conex.query(sql, [email]); 
+  console.log(resultSelect);
   if (resultSelect.length !== 0) {
-    const checkPass = await bcrypt.compare(password, resultSelect[0].PASSWORD)
+    const checkPass = await bcrypt.compare(password, resultSelect[0].password)
     console.log(checkPass);
+   
     if(checkPass) {
       const infoToken = {id: resultSelect[0].idUser, email: resultSelect[0].email}
       const token = generateToken(infoToken);
-      res.json({success: true, token: token})
+      res.json({success: true, token: token, idUser: resultSelect[0].idUser})
     } else {
       res.json({success: false, msg: "contraseña incorrecta"})
     }
